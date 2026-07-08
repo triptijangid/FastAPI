@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator, computed_field
 from typing import Dict, List
 # By default all the parameters defined in Pydantic BaseModel are Mandatory
 class Student(BaseModel):
@@ -17,6 +17,11 @@ class Student(BaseModel):
         if domain_name != 'masai.com':
             raise ValueError('Domain name is not valid.')
         return value
+    
+    @computed_field
+    @property
+    def score(self) -> float:
+        return self.marks * 10
     
     @model_validator(mode='after')
     @classmethod
