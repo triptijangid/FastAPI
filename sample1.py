@@ -1,7 +1,14 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:3000"],
+    allow_methods = ["*"]
+)
 
 ORDERS = {
     "ORD-101": {
@@ -32,7 +39,7 @@ def say_hello():
 def say_hello():
     return "hi Everyone"
 
-@app.get("/orders/{order_id:}")
+@app.get("/orders/{order_id}")
 def get_order_details(order_id: str):
     order = ORDERS.get(order_id)
     if not order:
@@ -77,3 +84,9 @@ def pagination(page_number: int = 9, limit: int = 20):
 @app.get("/lists")
 def list_products(page: dict = Depends(pagination)):
     return {"page_number": page["page_number"], "limit": page["limit"]}
+
+@app.middleware("http")
+async def sample_middleware(request: Request, call_next):
+    print("Base URL: ", request.base_url)
+    response = await call_next(request)
+    return response
